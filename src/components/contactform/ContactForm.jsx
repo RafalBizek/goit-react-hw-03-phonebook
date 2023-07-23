@@ -6,9 +6,39 @@ import css from './ContactForm.module.css';
 const ContactForm = ({ addContact }) => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [nameError, setNameError] = useState('');
+  const [numberError, setNumberError] = useState('');
 
   const handleSubmit = e => {
     e.preventDefault();
+    setSubmitted(true);
+
+    // Walidacja pola imienia
+    if (!name.trim()) {
+      setNameError('Name is required');
+      return;
+    } else if (!/^[A-Za-z.'\- ]+$/.test(name)) {
+      setNameError(
+        'Name can only contain letters, apostrophe, dash, and spaces'
+      );
+      return;
+    }
+    setNameError('');
+
+    // Walidacja pola numeru telefonu
+    if (!number.trim()) {
+      setNumberError('Phone number is required');
+      return;
+    } else if (
+      !/^\+?\d{1,4}?\s?\(?\d{1,4}?\)?\s?\d{1,4}\s?\d{1,4}\s?\d{1,9}$/.test(
+        number
+      )
+    ) {
+      setNumberError('Invalid phone number format');
+      return;
+    }
+    setNumberError('');
 
     const contact = {
       id: nanoid(),
@@ -30,26 +60,27 @@ const ContactForm = ({ addContact }) => {
         name="name"
         minLength={2}
         maxLength={50}
-        // pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-        pattern="^[A-Za-z.'\\- \]+$"
-        title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+        pattern="^[A-Za-z.'\- ]+$"
+        title="Name may contain only letters, apostrophe, dash, and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
         required
         value={name}
         onChange={e => setName(e.target.value)}
       />
+      {submitted && nameError && <p className={css.error}>{nameError}</p>}
 
       <label className={css.inputlabel}>Number</label>
       <input
         className={css.inputfield}
         type="tel"
         name="number"
-        // pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-        pattern="^\\+?\\d{1,4}?\\s?\\(?\\d{1,4}?\\)?\\s?\\d{1,4}\\s?\\d{1,4}\\s?\\d{1,9}$"
-        title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+        pattern="^\+?\d+$"
+        title="Phone number must contain only digits and can start with +"
         required
         value={number}
         onChange={e => setNumber(e.target.value)}
       />
+      {submitted && numberError && <p className={css.error}>{numberError}</p>}
+
       <button type="submit" className={css.btn}>
         Add contact
       </button>
